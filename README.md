@@ -1,60 +1,73 @@
 # 🎼 ThreadSymphony
 
-### Improving Thread Scheduling Efficiency in Oversubscribed Environments
+### User-Level Thread Scheduling in Oversubscribed Systems
 
 ---
 
 ## 📌 Overview
 
-Modern applications often create more threads than available CPU cores, leading to **thread oversubscription**. In such scenarios, traditional OS schedulers rely on frequent **preemption and context switching**, which introduces overhead and reduces performance.
+In modern systems, applications often create more threads than available CPU cores (**oversubscription**). Traditional OS schedulers rely on **preemption and context switching**, which can degrade performance.
 
-**ThreadSymphony** is a user-level thread scheduling framework developed as part of the *UNIX System Programming Lab (24XW47)*.
-It explores how **user-space scheduling strategies** can improve performance by reducing unnecessary thread interference.
-
-This project is inspired by and partially replicates findings from the research paper:
-**“Rethinking Thread Scheduling under Oversubscription: A User-Space Framework”**
+**ThreadSymphony** is a user-level scheduling framework that explores how **custom scheduling strategies** can improve efficiency by reducing unnecessary thread interference.
 
 ---
 
-## 🧠 Core Idea
+## 🧠 Key Idea
 
-Instead of relying entirely on OS-level scheduling, this project implements a **user-level scheduler** that controls how threads are executed.
-
-Two scheduling strategies are compared:
+We implement and compare two scheduling strategies:
 
 * 🔹 **Cooperative Scheduling (mode = 0)**
-  Threads voluntarily yield control → minimal context switching
+  Threads voluntarily yield CPU → fewer context switches → higher efficiency
 
 * 🔹 **Round-Robin Scheduling (mode = 1)**
-  Threads are preempted cyclically → higher fairness but more overhead
-
----
-
-## ⚙️ System Design
-
-The system simulates a multithreaded environment with:
-
-* CPU-bound workloads ⚡
-* I/O-bound workloads 🌐
-* Synchronization mechanisms (mutex, semaphores, barriers)
-
-A custom scheduler manages thread execution and collects performance metrics.
+  Threads are preempted cyclically → fair but introduces overhead
 
 ---
 
 ## 📂 Project Structure
 
-```
+```id="struct01"
 ThreadSymphony/
-│── src/
-│   ├── main.c          # Entry point (arguments, execution, output)
-│   ├── scheduler.c     # Core scheduling logic
-│   ├── workload.c      # CPU & I/O workload simulation
-│   ├── sync.c          # Synchronization primitives
-│   ├── metrics.c       # Performance measurement
-│   ├── usf.c           # Utility support functions
-│   ├── *.h             # Header files
+│── src/                  # Core implementation
+│   ├── main.c            # Entry point
+│   ├── scheduler.c       # Scheduling logic
+│   ├── workload.c        # CPU & I/O simulations
+│   ├── sync.c            # Synchronization primitives
+│   ├── metrics.c         # Performance measurement
+│   ├── usf.c             # Utility functions
+│   ├── *.h               # Header files
+│
+│── experiments/          # Experiment automation
+│   ├── run_experiments.ps1   # Runs multiple test cases
+│   ├── plot_results.py       # Generates graphs
+│
+│── results/
+│   ├── metrics.csv       # Collected performance data
+│   ├── logs/             # Execution logs
+│   ├── graphs/
+│       ├── performance.png   # Throughput/Time comparison
+│
+│── buildandrun.bat       # Quick compile + run script
+│── main.exe              # Compiled executable
+│── requirements.txt      # Python dependencies (for plots)
+│── README.md
 ```
+
+---
+
+## ⚙️ System Design
+
+The system simulates:
+
+* CPU-bound workloads ⚡
+* I/O-bound workloads 🌐
+* Thread synchronization using:
+
+  * Mutex locks
+  * Semaphores
+  * Barriers
+
+A **custom user-level scheduler** controls execution and collects performance metrics.
 
 ---
 
@@ -65,104 +78,117 @@ ThreadSymphony/
 
   * Operating Systems
   * Multithreading
-  * Thread Scheduling
-* **Libraries:**
+  * Scheduling Algorithms
+* **Tools:**
 
-  * pthread (Windows: `winpthread`)
-
----
-
-## ▶️ Compilation
-
-From inside the `src` folder:
-
-```
-gcc -Wall main.c scheduler.c usf.c workload.c sync.c metrics.c -o ../main.exe -lwinpthread
-```
+  * GCC
+  * Python (for visualization)
 
 ---
 
-## ▶️ Execution
+## ▶️ How to Run
 
-Run from project root:
+### Step 1: Compile
 
+```id="run01"
+gcc -Wall src/main.c src/scheduler.c src/usf.c src/workload.c src/sync.c src/metrics.c -o main.exe -lwinpthread
 ```
+
+### Step 2: Execute
+
+```id="run02"
 ./main.exe <num_threads> <mode>
 ```
 
-### Parameters:
-
-* `<num_threads>` → number of threads (16, 32, 64, etc.)
-* `<mode>`
-
-  * `0` → Cooperative Scheduling
-  * `1` → Round-Robin Scheduling
-
 ### Example:
 
-```
-./main.exe 16 0
-./main.exe 16 1
+```id="run03"
+./main.exe 16 0   # Cooperative
+./main.exe 16 1   # Round Robin
 ```
 
 ---
 
-## 📊 Performance Metrics
+## 🧪 Running Experiments
 
-The system evaluates scheduling strategies using:
+Automate testing:
 
-* ⏱️ **Execution Time** → total completion time
-* 📈 **Throughput** → tasks per second
+```id="run04"
+cd experiments
+./run_experiments.ps1
+```
 
 ---
 
-## 📈 Results & Analysis
+## 📊 Visualizing Results
 
-* Cooperative scheduling shows **higher throughput**
-* Round-robin introduces **preemption overhead**
-* Execution time is consistently lower in cooperative mode
+Generate graphs:
 
-These results align with the research findings that:
+```id="run05"
+python plot_results.py
+```
 
-> Reducing unnecessary preemptions improves performance in oversubscribed systems 
+Output:
+
+* 📈 `results/graphs/performance.png`
+
+---
+
+## 📈 Performance Metrics
+
+* ⏱️ Execution Time
+* 📊 Throughput (tasks/sec)
+
+---
+
+## 📊 Results
+
+* Cooperative scheduling achieves:
+
+  * Higher throughput
+  * Lower execution time
+
+* Round-robin scheduling:
+
+  * Introduces preemption overhead
+  * Slightly reduces efficiency
+
+📌 Graph available in:
+`results/graphs/performance.png`
 
 ---
 
 ## 🔬 Research Connection
 
-This project is inspired by a user-space scheduling framework that:
+This project is inspired by a user-space scheduling framework that reduces interference in oversubscribed systems.
 
-* Minimizes thread preemption
-* Reduces interference between threads
-* Improves system efficiency in oversubscribed environments
+Key insight:
 
-The research demonstrates improvements of up to **2.4× throughput** in real workloads 
+> Minimizing unnecessary preemptions improves system performance in multi-threaded workloads 
 
 ---
 
 ## 🎯 Learning Outcomes
 
-* Understanding **thread oversubscription**
-* Comparing **preemptive vs cooperative scheduling**
-* Implementing a **custom scheduler in user space**
-* Measuring real-world performance trade-offs
+* Understanding oversubscription
+* Implementing a scheduler from scratch
+* Comparing scheduling strategies
+* Analyzing real performance metrics
 
 ---
 
-## 👩‍💻 Authors
+## 👩‍💻 Author
 
 * **Keshika N M (24PW20)**
 ---
 
 ## 📜 Conclusion
 
-This project demonstrates that **user-level scheduling** can significantly improve performance in oversubscribed environments by:
+This project demonstrates that **user-level scheduling can outperform traditional OS scheduling** in oversubscribed environments by:
 
 * Reducing context switching
 * Improving CPU utilization
 * Increasing throughput
-
-It highlights the importance of **application-aware scheduling strategies** in modern concurrent systems.
 
 ---
 
