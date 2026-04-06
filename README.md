@@ -179,7 +179,7 @@ Key insight:
 
 ## 👩‍💻 Author
 
-* **Keshika N M **
+* ** Keshika N M **
 ---
 
 ## 📜 Conclusion
